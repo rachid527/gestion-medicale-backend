@@ -5,8 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Utilisateur;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\CreateUserRequest;
 
 class AuthController extends Controller
 {
@@ -24,37 +25,33 @@ class AuthController extends Controller
 
 
     // Inscription d’un patient (JWT)
-    public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'nom' => 'required|string',
-            'prenom' => 'required|string',
-            'email' => 'required|email|unique:utilisateurs',
-            'mot_de_passe' => 'required|min:6|confirmed', // Confirmé = mot_de_passe_confirmation
-            'telephone' => 'nullable|string',
-            'adresse' => 'nullable|string',
-            'sexe' => 'required|in:Homme,Femme',
-            'date_naissance' => 'nullable|date',
-        ]);
+    // public function register(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'nom' => 'required|string',
+    //         'prenom' => 'required|string',
+    //         'email' => 'required|email|unique:utilisateurs',
+    //         'mot_de_passe' => 'required|min:6|confirmed', // Confirmé = mot_de_passe_confirmation
+    //         'telephone' => 'nullable|string',
+    //         'adresse' => 'nullable|string',
+    //         'sexe' => 'required|in:Homme,Femme',
+    //         'date_naissance' => 'nullable|date',
+    //     ]);
 
 
+    //     // Hachage du mot de passe
+    //     $validated['mot_de_passe'] = Hash::make($validated['mot_de_passe']);
+    //     $validated['role'] = 'patient'; // Par défaut
+    //     $validated['statut'] = 'actif';
+    //     dd($validated);
 
+    //     $utilisateur = Utilisateur::create($validated);
 
-
-
-        // Hachage du mot de passe
-        $validated['mot_de_passe'] = Hash::make($validated['mot_de_passe']);
-        $validated['role'] = 'patient'; // Par défaut
-        $validated['statut'] = 'actif';
-        dd($validated);
-
-        $utilisateur = Utilisateur::create($validated);
-
-        return response()->json([
-            'message' => 'Inscription réussie',
-            'user' => $utilisateur
-        ], 201);
-    }
+    //     return response()->json([
+    //         'message' => 'Inscription réussie',
+    //         'user' => $utilisateur
+    //     ], 201);
+    // }
 
 
 
@@ -65,7 +62,7 @@ class AuthController extends Controller
      */
     public function login()
     {
-        $credentials = request(['email', 'mot_de_passe']);
+        $credentials = request(['email', 'password']);
 
         if (! $token = Auth::attempt($credentials)) {
             // dd($credentials);
@@ -122,4 +119,21 @@ class AuthController extends Controller
             'expires_in' => auth::factory()->getTTL() * 60
         ]);
     }
+
+
+    public function register(CreateUserRequest $request)
+    {
+        $input = $request->all();
+        $input['mot_de_passe'] = bcrypt($request->password);
+
+        $user = User::create($input);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Thank's! You are successfully registered",
+            'user' => $user
+        ], 201);
+    }
+
+
 }

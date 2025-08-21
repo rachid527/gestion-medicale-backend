@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Utilisateur;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ class UtilisateurController extends Controller
     // 🔍 Liste tous les utilisateurs
     public function index()
     {
-        $utilisateurs = Utilisateur::all();
+        $utilisateurs = User::all();
         return response()->json($utilisateurs);
     }
 
@@ -45,19 +45,19 @@ class UtilisateurController extends Controller
     // 🔎 Afficher les détails d’un utilisateur
     public function show($id)
     {
-        $utilisateur = Utilisateur::findOrFail($id);
+        $utilisateur = User::findOrFail($id);
         return response()->json($utilisateur);
     }
 
     // ✏️ Modifier un utilisateur
     public function update(Request $request, $id)
     {
-        $utilisateur = Utilisateur::findOrFail($id);
+        $utilisateur = User::findOrFail($id);
 
         $validated = $request->validate([
             'nom' => 'sometimes|string',
             'prenom' => 'sometimes|string',
-            'email' => 'sometimes|email|unique:utilisateurs,email,' . $id,
+            'email' => 'sometimes|email|unique:utilisateurs,email,',
             'mot_de_passe' => 'nullable|min:6',
             'telephone' => 'nullable|string',
             'adresse' => 'nullable|string',
@@ -85,7 +85,7 @@ class UtilisateurController extends Controller
     // 🗑️ Supprimer un utilisateur
     public function destroy($id)
     {
-        $utilisateur = Utilisateur::findOrFail($id);
+        $utilisateur = User::findOrFail($id);
         $utilisateur->delete();
 
         return response()->json(['message' => 'Utilisateur supprimé avec succès']);

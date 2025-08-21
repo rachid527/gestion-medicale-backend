@@ -23,7 +23,7 @@ return new class extends Migration
             $table->text('remarques')->nullable();        // Remarques générales
 
             // Relation avec patient
-            $table->foreign('id_patient')->references('id')->on('utilisateurs')->onDelete('cascade');
+            $table->foreign('id_patient')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();    // created_at, updated_at
         });
     }

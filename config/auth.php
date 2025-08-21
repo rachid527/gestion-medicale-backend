@@ -43,7 +43,7 @@ return [
         //  Ajoute ce guard pour JWT
         'api' => [
             'driver' => 'jwt',
-            'provider' => 'utilisateurs', // Doit correspondre au provider ci-dessous
+            'provider' => 'users', // Doit correspondre au provider ci-dessous
         ],
     ],
 

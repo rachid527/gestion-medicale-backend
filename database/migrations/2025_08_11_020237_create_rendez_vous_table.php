@@ -30,8 +30,8 @@ return new class extends Migration
             $table->unsignedBigInteger('id_specialite');
 
             // Relations
-            $table->foreign('id_patient')->references('id')->on('utilisateurs')->onDelete('cascade');
-            $table->foreign('id_medecin')->references('id')->on('utilisateurs')->onDelete('cascade');
+            $table->foreign('id_patient')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('id_medecin')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('id_specialite')->references('id_specialite')->on('specialites')->onDelete('cascade');
             $table->timestamps();
         });
