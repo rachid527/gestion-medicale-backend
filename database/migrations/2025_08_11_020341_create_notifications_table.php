@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('notifications', function (Blueprint $table) {
             $table->id('id_notification'); // ID unique de la notification
 
-            $table->unsignedBigInteger('id_utilisateur'); // À qui est destinée la notification
+            $table->unsignedBigInteger('id_user'); // À qui est destinée la notification
             $table->unsignedBigInteger('id_rdv')->nullable(); // Notification liée à un RDV (optionnel)
 
             $table->string('type_notification'); // Exemple : confirmation, annulation, rappel, etc.
             $table->text('contenu');             // Message à afficher
             $table->boolean('lu')->default(false); // Lu ou non
 
-            $table->foreign('id_utilisateur')->references('id')->on('utilisateurs')->onDelete('cascade');
+            $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('id_rdv')->references('id_rdv')->on('rendez_vous')->onDelete('cascade');
 
             $table->timestamps();

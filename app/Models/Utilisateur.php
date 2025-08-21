@@ -22,6 +22,14 @@ class Utilisateur extends Authenticatable  implements JWTSubject
         'statut'
     ];
 
+    public static array $rules = [
+        'prenom' => 'required|string',
+        'nom' => 'required|string',
+        'email' => 'required|unique:users|string|email',
+        'phone' => 'nullable',
+        'mot_de_passe' => 'required|string',
+    ];
+
     // 🔐 Méthodes obligatoires pour JWT
     public function getJWTIdentifier()
     {
