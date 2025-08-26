@@ -34,7 +34,7 @@ class UtilisateurController extends Controller
 
         $validated['mot_de_passe'] = Hash::make($validated['mot_de_passe']);
 
-        $utilisateur = Utilisateur::create($validated);
+        $utilisateur = User::create($validated);
 
         return response()->json([
             'message' => 'Utilisateur créé avec succès',

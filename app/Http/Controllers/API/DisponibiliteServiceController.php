@@ -3,55 +3,52 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\DisponibiliteServiceRequest;
 use App\Models\DisponibiliteService;
 
 class DisponibiliteServiceController extends Controller
 {
+    // ✅ Lister toutes les disponibilités
     public function index()
     {
         $dispos = DisponibiliteService::with('service')->get();
         return response()->json($dispos);
     }
 
-    public function store(Request $request)
+    // ✅ Créer une nouvelle disponibilité
+    public function store(DisponibiliteServiceRequest $request)
     {
-        $validated = $request->validate([
-            'id_service' => 'required|exists:services,id_service',
-            'jour_semaine' => 'required|in:Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche',
-            'heure_debut' => 'required|date_format:H:i',
-            'heure_fin' => 'required|date_format:H:i|after:heure_debut',
-            'estOuvert' => 'boolean',
-        ]);
+        $dispo = DisponibiliteService::create($request->validated());
 
-        $dispo = DisponibiliteService::create($validated);
-
-        return response()->json($dispo, 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Disponibilité créée avec succès',
+            'data'    => $dispo
+        ], 201);
     }
 
+    // ✅ Afficher une disponibilité précise
     public function show($id)
     {
         $dispo = DisponibiliteService::with('service')->findOrFail($id);
+
         return response()->json($dispo);
     }
 
-    public function update(Request $request, $id)
+    // ✅ Mettre à jour une disponibilité
+    public function update(DisponibiliteServiceRequest $request, $id)
     {
         $dispo = DisponibiliteService::findOrFail($id);
+        $dispo->update($request->validated());
 
-        $validated = $request->validate([
-            'id_service' => 'exists:services,id_service',
-            'jour_semaine' => 'in:Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche',
-            'heure_debut' => 'date_format:H:i',
-            'heure_fin' => 'date_format:H:i|after:heure_debut',
-            'estOuvert' => 'boolean',
+        return response()->json([
+            'success' => true,
+            'message' => 'Disponibilité mise à jour avec succès',
+            'data'    => $dispo
         ]);
-
-        $dispo->update($validated);
-
-        return response()->json($dispo);
     }
 
+    // ✅ Supprimer une disponibilité
     public function destroy($id)
     {
         $dispo = DisponibiliteService::findOrFail($id);

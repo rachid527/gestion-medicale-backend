@@ -3,56 +3,60 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Specialite;
+use App\Http\Requests\CreateSpecialiteRequest;
+use App\Http\Requests\UpdateSpecialiteRequest;
 
 class SpecialiteController extends Controller
 {
+    // Liste des spécialités
     public function index()
     {
-        $specialites = Specialite::with('service')->get(); // inclure nom du service
+        $specialites = Specialite::with('service')->get();
         return response()->json($specialites);
     }
 
-    public function store(Request $request)
+    // Création d’une spécialité
+    public function store(CreateSpecialiteRequest $request)
     {
-        $validated = $request->validate([
-            'nom_specialite' => 'required|string',
-            'description' => 'nullable|string',
-            'id_service' => 'required|exists:services,id_service',
-        ]);
+        $specialite = Specialite::create($request->validated());
 
-        $specialite = Specialite::create($validated);
-
-        return response()->json($specialite, 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Spécialité créée avec succès',
+            'data'    => $specialite
+        ], 201);
     }
 
+    // Détails d’une spécialité
     public function show($id)
     {
         $specialite = Specialite::with('service')->findOrFail($id);
         return response()->json($specialite);
     }
 
-    public function update(Request $request, $id)
+    // Mise à jour d’une spécialité
+    public function update(UpdateSpecialiteRequest $request, $id)
     {
         $specialite = Specialite::findOrFail($id);
+        $specialite->update($request->validated());
 
-        $validated = $request->validate([
-            'nom_specialite' => 'string',
-            'description' => 'nullable|string',
-            'id_service' => 'exists:services,id_service',
+        return response()->json([
+            'success' => true,
+            'message' => 'Spécialité mise à jour avec succès',
+            'data'    => $specialite
         ]);
-
-        $specialite->update($validated);
-
-        return response()->json($specialite);
     }
 
+    // Suppression d’une spécialité
     public function destroy($id)
     {
         $specialite = Specialite::findOrFail($id);
         $specialite->delete();
 
-        return response()->json(['message' => 'Spécialité supprimée avec succès']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Spécialité supprimée avec succès'
+        ]);
     }
 }

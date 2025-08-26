@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DossierMedical extends Model
 {
-
+    protected $primaryKey = 'id_dossier';  // clé primaire
     protected $fillable = [
         'id_patient',
         'groupe_sanguin',
@@ -18,6 +18,6 @@ class DossierMedical extends Model
 
     public function patient()
     {
-        return $this->belongsTo(Utilisateur::class, 'id_patient');
+        return $this->belongsTo(User::class, 'id_patient');
     }
 }

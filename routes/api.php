@@ -46,8 +46,11 @@ Route::prefix('rendezvous')->group(function () {
 
 // Dossiers médicaux
 Route::prefix('dossiers')->group(function () {
+    Route::get('/', [DossierMedicalController::class, 'index']);           // Liste tous les dossiers
+    Route::post('/', [DossierMedicalController::class, 'store']);          // Créer un dossier
     Route::get('/patient/{id}', [DossierMedicalController::class, 'show']);
     Route::put('/patient/{id}', [DossierMedicalController::class, 'update']);
+    Route::delete('/patient/{id}', [DossierMedicalController::class, 'destroy']); // Supprimer un dossier
 });
 
 // Services

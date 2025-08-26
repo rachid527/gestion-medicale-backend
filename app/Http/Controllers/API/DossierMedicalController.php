@@ -3,27 +3,36 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\DossierMedicalRequest;
 use App\Models\DossierMedical;
 use App\Models\Utilisateur;
+use Illuminate\Http\Request;
 
 class DossierMedicalController extends Controller
 {
+    //  Lister tous les dossiers médicaux
     public function index()
     {
-        // Renvoyer tous les utilisateurs
+        $dossiers = DossierMedical::with('patient')->get();
+        return response()->json($dossiers);
     }
 
-    public function store(Request $request)
+    //  Créer un nouveau dossier médical
+    public function store(DossierMedicalRequest $request)
     {
-        // Valider et créer un nouvel utilisateur
+        $dossier = DossierMedical::create($request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Dossier médical créé avec succès',
+            'data'    => $dossier
+        ], 201);
     }
 
+    //  Afficher le dossier d’un patient via son id
     public function show($id)
     {
-        $patient = Utilisateur::findOrFail($id);
-
-        $dossier = DossierMedical::where('id_patient', $patient->id)->first();
+        $dossier = DossierMedical::where('id_patient', $id)->with('patient')->first();
 
         if (!$dossier) {
             return response()->json(['message' => 'Dossier médical non trouvé'], 404);
@@ -32,25 +41,26 @@ class DossierMedicalController extends Controller
         return response()->json($dossier);
     }
 
-    public function update(Request $request, $id)
+    //  Mettre à jour le dossier d’un patient
+    public function update(DossierMedicalRequest $request, $id)
     {
         $dossier = DossierMedical::where('id_patient', $id)->firstOrFail();
 
-        $validated = $request->validate([
-            'groupe_sanguin' => 'nullable|string',
-            'allergies' => 'nullable|string',
-            'antecedents' => 'nullable|string',
-            'poids' => 'nullable|numeric',
-            'remarques' => 'nullable|string',
+        $dossier->update($request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Dossier médical mis à jour avec succès',
+            'data'    => $dossier
         ]);
-
-        $dossier->update($validated);
-
-        return response()->json($dossier);
     }
 
+    //  Supprimer le dossier d’un patient
     public function destroy($id)
     {
-        // Supprimer un utilisateur
+        $dossier = DossierMedical::where('id_patient', $id)->firstOrFail();
+        $dossier->delete();
+
+        return response()->json(['message' => 'Dossier médical supprimé avec succès']);
     }
 }

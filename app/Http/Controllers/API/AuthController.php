@@ -124,7 +124,9 @@ class AuthController extends Controller
     public function register(CreateUserRequest $request)
     {
         $input = $request->all();
-        $input['mot_de_passe'] = bcrypt($request->password);
+        $input['password'] = bcrypt($request->password);
+
+        dd($input);
 
         $user = User::create($input);
 
@@ -134,6 +136,4 @@ class AuthController extends Controller
             'user' => $user
         ], 201);
     }
-
-
 }

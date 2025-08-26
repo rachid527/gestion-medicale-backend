@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class DisponibiliteService extends Model
 {
+    protected $table = 'disponibilite_services'; // nom de la table
+    protected $primaryKey = 'id_disponibilite';  // clé primaire
 
     protected $fillable = [
         'id_service',

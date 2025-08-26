@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\User;        // 🔹 importer User correctement
+use App\Models\Specialite;  // 🔹 importer Specialite aussi
+
 use Illuminate\Database\Eloquent\Model;
 
 class RendezVous extends Model
 {
-
+    protected $primaryKey = 'id_rdv';  // clé primaire
     protected $fillable = [
         'date_rdv',
         'heure_rdv',
@@ -23,12 +26,12 @@ class RendezVous extends Model
 
     public function patient()
     {
-        return $this->belongsTo(Utilisateur::class, 'id_patient');
+        return $this->belongsTo(User::class, 'id_patient');
     }
 
     public function medecin()
     {
-        return $this->belongsTo(Utilisateur::class, 'id_medecin');
+        return $this->belongsTo(User::class, 'id_medecin');
     }
 
     public function specialite()
