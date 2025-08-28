@@ -59,4 +59,13 @@ class SpecialiteController extends Controller
             'message' => 'Spécialité supprimée avec succès'
         ]);
     }
+
+
+    // Récupérer toutes les spécialités d’un service
+    public function getByService($id_service)
+    {
+        $specialites = Specialite::where('id_service', $id_service)->get();
+
+        return response()->json($specialites);
+    }
 }

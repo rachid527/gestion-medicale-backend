@@ -22,8 +22,8 @@ class UtilisateurController extends Controller
         $validated = $request->validate([
             'nom' => 'required|string',
             'prenom' => 'required|string',
-            'email' => 'required|email|unique:utilisateurs',
-            'mot_de_passe' => 'required|string|min:6',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:6',
             'telephone' => 'nullable|string',
             'adresse' => 'nullable|string',
             'sexe' => 'required|in:Homme,Femme',
@@ -32,7 +32,7 @@ class UtilisateurController extends Controller
             'statut' => 'in:actif,desactive',
         ]);
 
-        $validated['mot_de_passe'] = Hash::make($validated['mot_de_passe']);
+        $validated['password'] = Hash::make($validated['password']);
 
         $utilisateur = User::create($validated);
 
@@ -57,8 +57,8 @@ class UtilisateurController extends Controller
         $validated = $request->validate([
             'nom' => 'sometimes|string',
             'prenom' => 'sometimes|string',
-            'email' => 'sometimes|email|unique:utilisateurs,email,',
-            'mot_de_passe' => 'nullable|min:6',
+            'email' => 'sometimes|email|unique:users,email,' . $id,
+            'password' => 'nullable|min:6',
             'telephone' => 'nullable|string',
             'adresse' => 'nullable|string',
             'sexe' => 'nullable|in:Homme,Femme',
@@ -67,11 +67,10 @@ class UtilisateurController extends Controller
             'statut' => 'nullable|in:actif,desactive',
         ]);
 
-        // Si un nouveau mot de passe est fourni
-        if (!empty($validated['mot_de_passe'])) {
-            $validated['mot_de_passe'] = Hash::make($validated['mot_de_passe']);
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
         } else {
-            unset($validated['mot_de_passe']);
+            unset($validated['password']);
         }
 
         $utilisateur->update($validated);
@@ -89,5 +88,17 @@ class UtilisateurController extends Controller
         $utilisateur->delete();
 
         return response()->json(['message' => 'Utilisateur supprimé avec succès']);
+    }
+
+    // 🔍 Récupérer tous les médecins d’une spécialité
+    public function getMedecinsBySpecialite($id_specialite)
+    {
+        $medecins = User::where('role', 'medecin')
+            ->whereHas('rendezVousMedecin', function ($query) use ($id_specialite) {
+                $query->where('id_specialite', $id_specialite);
+            })
+            ->get();
+
+        return response()->json($medecins);
     }
 }

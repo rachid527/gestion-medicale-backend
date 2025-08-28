@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RendezVousRequest; // 👉 utilisation du FormRequest
+use App\Http\Requests\RendezVousRequest;
 use App\Models\RendezVous;
+use Carbon\Carbon;
 
 class RendezVousController extends Controller
 {
@@ -40,12 +41,43 @@ class RendezVousController extends Controller
         return response()->json($rdv);
     }
 
-    // 📌 Mettre à jour un rendez-vous
+    // 📌 Mettre à jour un rendez-vous (annulation / reprogrammation / confirmation)
     public function update(RendezVousRequest $request, $id)
     {
         $rdv = RendezVous::findOrFail($id);
+        $data = $request->validated();
 
-        $rdv->update($request->validated());
+        // Vérifier les règles métier
+        if (isset($data['modifie_par']) && in_array($data['modifie_par'], ['patient', 'medecin'])) {
+            $now = Carbon::now();
+            $rdvDateTime = Carbon::parse($rdv->date_rdv . ' ' . $rdv->heure_rdv);
+
+            if ($data['modifie_par'] === 'patient') {
+                // Patient : doit annuler/reprogrammer ≥ 48h avant
+                if ($now->diffInHours($rdvDateTime, false) < 48) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Un patient ne peut annuler ou reprogrammer qu’au moins 48h avant le rendez-vous.'
+                    ], 403);
+                }
+            }
+
+            if ($data['modifie_par'] === 'medecin') {
+                // Médecin : doit annuler/reprogrammer ≥ 24h avant
+                if ($now->diffInHours($rdvDateTime, false) < 24) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Un médecin ne peut annuler ou reprogrammer qu’au moins 24h avant le rendez-vous.'
+                    ], 403);
+                }
+            }
+        }
+
+        // Mise à jour avec historique
+        $data['date_modification'] = Carbon::now();
+        $data['date_precedente'] = $rdv->date_rdv; // si reprogrammé
+
+        $rdv->update($data);
 
         return response()->json([
             'success' => true,
@@ -54,7 +86,7 @@ class RendezVousController extends Controller
         ]);
     }
 
-    // 📌 Supprimer un rendez-vous
+    // 📌 Supprimer un rendez-vous (optionnel, sinon utiliser update avec état "annulé")
     public function destroy($id)
     {
         $rdv = RendezVous::findOrFail($id);

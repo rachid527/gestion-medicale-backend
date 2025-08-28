@@ -10,15 +10,20 @@ use App\Http\Controllers\API\DisponibiliteServiceController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\AuthController;
 
-// Auth routes (publiques)
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+| Toutes les routes de ton API Laravel
+| Préfixées automatiquement par /api
+|--------------------------------------------------------------------------
+*/
 
+// ----------------- AUTH -----------------
 Route::group([
-
     'middleware' => 'api',
     'prefix' => 'auth'
-
 ], function ($router) {
-
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
@@ -26,63 +31,72 @@ Route::group([
     Route::post('register', [AuthController::class, 'register']);
 });
 
-// Utilisateurs
+// ----------------- UTILISATEURS -----------------
 Route::prefix('utilisateurs')->group(function () {
-    Route::get('/', [UtilisateurController::class, 'index']);
-    Route::post('/', [UtilisateurController::class, 'store']);
-    Route::get('/{id}', [UtilisateurController::class, 'show']);
-    Route::put('/{id}', [UtilisateurController::class, 'update']);
-    Route::delete('/{id}', [UtilisateurController::class, 'destroy']);
+    Route::get('/', [UtilisateurController::class, 'index']);      // Liste tous les utilisateurs
+    Route::post('/', [UtilisateurController::class, 'store']);     // Créer un utilisateur
+    Route::get('/{id}', [UtilisateurController::class, 'show']);   // Voir un utilisateur
+    Route::put('/{id}', [UtilisateurController::class, 'update']); // Modifier un utilisateur
+    Route::delete('/{id}', [UtilisateurController::class, 'destroy']); // Supprimer un utilisateur
+
+    // 🔹 Médecins par spécialité
+    Route::get('/medecins/specialite/{id_specialite}', [UtilisateurController::class, 'getMedecinsBySpecialite']);
 });
 
-// Rendez-vous
+// ----------------- RENDEZ-VOUS -----------------
 Route::prefix('rendezvous')->group(function () {
-    Route::get('/', [RendezVousController::class, 'index']);
-    Route::post('/', [RendezVousController::class, 'store']);
-    Route::get('/{id}', [RendezVousController::class, 'show']);
-    Route::put('/{id}', [RendezVousController::class, 'update']);
-    Route::delete('/{id}', [RendezVousController::class, 'destroy']);
+    Route::get('/', [RendezVousController::class, 'index']);      // Liste RDV
+    Route::post('/', [RendezVousController::class, 'store']);     // Créer RDV
+    Route::get('/{id}', [RendezVousController::class, 'show']);   // Voir un RDV
+    Route::put('/{id}', [RendezVousController::class, 'update']); // Modifier RDV
+    Route::delete('/{id}', [RendezVousController::class, 'destroy']); // Supprimer RDV
 });
 
-// Dossiers médicaux
+// ----------------- DOSSIERS MEDICAUX -----------------
 Route::prefix('dossiers')->group(function () {
-    Route::get('/', [DossierMedicalController::class, 'index']);           // Liste tous les dossiers
-    Route::post('/', [DossierMedicalController::class, 'store']);          // Créer un dossier
-    Route::get('/patient/{id}', [DossierMedicalController::class, 'show']);
-    Route::put('/patient/{id}', [DossierMedicalController::class, 'update']);
-    Route::delete('/patient/{id}', [DossierMedicalController::class, 'destroy']); // Supprimer un dossier
+    Route::get('/', [DossierMedicalController::class, 'index']);         // Liste dossiers
+    Route::post('/', [DossierMedicalController::class, 'store']);        // Créer dossier
+    Route::get('/patient/{id}', [DossierMedicalController::class, 'show']); // Voir dossier patient
+    Route::put('/patient/{id}', [DossierMedicalController::class, 'update']); // Modifier dossier patient
+    Route::delete('/patient/{id}', [DossierMedicalController::class, 'destroy']); // Supprimer dossier patient
 });
 
-// Services
+// ----------------- SERVICES -----------------
 Route::prefix('services')->group(function () {
-    Route::get('/', [ServiceController::class, 'index']);
-    Route::post('/', [ServiceController::class, 'store']);
-    Route::get('/{id}', [ServiceController::class, 'show']);
-    Route::put('/{id}', [ServiceController::class, 'update']);
-    Route::delete('/{id}', [ServiceController::class, 'destroy']);
+    Route::get('/', [ServiceController::class, 'index']);      // Liste services
+    Route::post('/', [ServiceController::class, 'store']);     // Créer service
+    Route::get('/{id}', [ServiceController::class, 'show']);   // Voir service
+    Route::put('/{id}', [ServiceController::class, 'update']); // Modifier service
+    Route::delete('/{id}', [ServiceController::class, 'destroy']); // Supprimer service
 });
 
-// Spécialités
+// ----------------- SPECIALITES -----------------
 Route::prefix('specialites')->group(function () {
-    Route::get('/', [SpecialiteController::class, 'index']);
-    Route::post('/', [SpecialiteController::class, 'store']);
-    Route::get('/{id}', [SpecialiteController::class, 'show']);
-    Route::put('/{id}', [SpecialiteController::class, 'update']);
-    Route::delete('/{id}', [SpecialiteController::class, 'destroy']);
+    Route::get('/', [SpecialiteController::class, 'index']);      // Liste spécialités
+    Route::post('/', [SpecialiteController::class, 'store']);     // Créer spécialité
+    Route::get('/{id}', [SpecialiteController::class, 'show']);   // Voir spécialité
+    Route::put('/{id}', [SpecialiteController::class, 'update']); // Modifier spécialité
+    Route::delete('/{id}', [SpecialiteController::class, 'destroy']); // Supprimer spécialité
+
+    // 🔹 Spécialités par service
+    Route::get('/service/{id_service}', [SpecialiteController::class, 'getByService']);
 });
 
-// Disponibilités
+// ----------------- DISPONIBILITES -----------------
 Route::prefix('disponibilites')->group(function () {
-    Route::get('/', [DisponibiliteServiceController::class, 'index']);
-    Route::post('/', [DisponibiliteServiceController::class, 'store']);
-    Route::get('/{id}', [DisponibiliteServiceController::class, 'show']);
-    Route::put('/{id}', [DisponibiliteServiceController::class, 'update']);
-    Route::delete('/{id}', [DisponibiliteServiceController::class, 'destroy']);
+    Route::get('/', [DisponibiliteServiceController::class, 'index']);      // Liste disponibilités
+    Route::post('/', [DisponibiliteServiceController::class, 'store']);     // Créer disponibilité
+    Route::get('/{id}', [DisponibiliteServiceController::class, 'show']);   // Voir disponibilité
+    Route::put('/{id}', [DisponibiliteServiceController::class, 'update']); // Modifier disponibilité
+    Route::delete('/{id}', [DisponibiliteServiceController::class, 'destroy']); // Supprimer disponibilité
+
+    // 🔹 Disponibilités par service
+    Route::get('/service/{id_service}', [DisponibiliteServiceController::class, 'getByService']);
 });
 
-// // Notifications
-// Route::prefix('notifications')->group(function () {
-// Route::get('/', [NotificationController::class, 'index']);
-// Route::get('/{id}', [NotificationController::class, 'show']);
-// Route::put('/{id}/marquer-lu', [NotificationController::class, 'markAsRead']);
-// });
+// ----------------- NOTIFICATIONS (désactivé pour l’instant) -----------------
+Route::prefix('notifications')->group(function () {
+    Route::get('/', [NotificationController::class, 'index']);
+    Route::get('/{id}', [NotificationController::class, 'show']);
+    Route::put('/{id}/marquer-lu', [NotificationController::class, 'markAsRead']);
+});

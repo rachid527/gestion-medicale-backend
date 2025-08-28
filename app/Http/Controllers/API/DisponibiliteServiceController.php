@@ -56,4 +56,13 @@ class DisponibiliteServiceController extends Controller
 
         return response()->json(['message' => 'Disponibilité supprimée avec succès']);
     }
+
+
+    // Récupérer toutes les disponibilités d’un service
+    public function getByService($id_service)
+    {
+        $dispos = DisponibiliteService::where('id_service', $id_service)->get();
+
+        return response()->json($dispos);
+    }
 }
