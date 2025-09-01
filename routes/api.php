@@ -43,6 +43,12 @@ Route::prefix('utilisateurs')->group(function () {
     Route::get('/medecins/specialite/{id_specialite}', [UtilisateurController::class, 'getMedecinsBySpecialite']);
 });
 
+// ----------------- PATIENTS SUIVIS PAR UN MÉDECIN -----------------
+Route::get('/utilisateurs/medecin/{id_medecin}/patients', [UtilisateurController::class, 'getPatientsByMedecin']);
+
+// ----------------- STATISTIQUES MÉDECIN (patients & RDV) -----------------
+Route::get('/medecin/{id}/stats', [UtilisateurController::class, 'getMedecinStats']);
+
 // ----------------- RENDEZ-VOUS -----------------
 Route::prefix('rendezvous')->group(function () {
     Route::get('/', [RendezVousController::class, 'index']);      // Liste RDV
@@ -50,6 +56,9 @@ Route::prefix('rendezvous')->group(function () {
     Route::get('/{id}', [RendezVousController::class, 'show']);   // Voir un RDV
     Route::put('/{id}', [RendezVousController::class, 'update']); // Modifier RDV
     Route::delete('/{id}', [RendezVousController::class, 'destroy']); // Supprimer RDV
+
+    Route::get('/patient/{id}', [RendezVousController::class, 'getByPatient']);
+    Route::get('/medecin/{id}', [RendezVousController::class, 'getByMedecin']);
 });
 
 // ----------------- DOSSIERS MEDICAUX -----------------
@@ -94,7 +103,7 @@ Route::prefix('disponibilites')->group(function () {
     Route::get('/service/{id_service}', [DisponibiliteServiceController::class, 'getByService']);
 });
 
-// ----------------- NOTIFICATIONS (désactivé pour l’instant) -----------------
+// ----------------- NOTIFICATIONS -----------------
 Route::prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index']);
     Route::get('/{id}', [NotificationController::class, 'show']);

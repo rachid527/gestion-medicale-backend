@@ -16,13 +16,35 @@ class RendezVousController extends Controller
         return response()->json($rdvs);
     }
 
+    // 📌 Récupérer les rendez-vous d’un patient précis
+    public function getByPatient($id)
+    {
+        $rdvs = RendezVous::with(['medecin', 'specialite'])
+            ->where('id_patient', $id)
+            ->orderBy('date_rdv', 'asc')
+            ->get();
+
+        return response()->json($rdvs);
+    }
+
+    // 📌 Récupérer les rendez-vous d’un médecin précis
+    public function getByMedecin($id_medecin)
+    {
+        $rdvs = RendezVous::with(['patient', 'specialite'])
+            ->where('id_medecin', $id_medecin)
+            ->orderBy('date_rdv', 'desc')
+            ->get();
+
+        return response()->json($rdvs);
+    }
+
     // 📌 Créer un rendez-vous
     public function store(RendezVousRequest $request)
     {
         $data = $request->validated();
 
-        // Valeurs par défaut
-        $data['etat'] = 'en_attente';
+        // 🔹 Valeurs par défaut si non envoyées
+        $data['etat'] = $data['etat'] ?? 'en_attente';
         $data['type_action'] = 'prise';
 
         $rdv = RendezVous::create($data);
@@ -86,7 +108,7 @@ class RendezVousController extends Controller
         ]);
     }
 
-    // 📌 Supprimer un rendez-vous (optionnel, sinon utiliser update avec état "annulé")
+    // 📌 Supprimer un rendez-vous
     public function destroy($id)
     {
         $rdv = RendezVous::findOrFail($id);

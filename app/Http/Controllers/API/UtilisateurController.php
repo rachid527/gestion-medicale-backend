@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\User;
+use App\Models\RendezVous;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -30,6 +32,7 @@ class UtilisateurController extends Controller
             'date_naissance' => 'nullable|date',
             'role' => 'required|in:admin,medecin,patient',
             'statut' => 'in:actif,desactive',
+            'id_specialite' => 'nullable|exists:specialites,id_specialite', // ✅ spécialité pour médecin
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -65,6 +68,7 @@ class UtilisateurController extends Controller
             'date_naissance' => 'nullable|date',
             'role' => 'nullable|in:admin,medecin,patient',
             'statut' => 'nullable|in:actif,desactive',
+            'id_specialite' => 'nullable|exists:specialites,id_specialite', // ✅ spécialité modifiable
         ]);
 
         if (!empty($validated['password'])) {
@@ -94,11 +98,43 @@ class UtilisateurController extends Controller
     public function getMedecinsBySpecialite($id_specialite)
     {
         $medecins = User::where('role', 'medecin')
-            ->whereHas('rendezVousMedecin', function ($query) use ($id_specialite) {
-                $query->where('id_specialite', $id_specialite);
-            })
+            ->where('id_specialite', $id_specialite)
             ->get();
 
         return response()->json($medecins);
+    }
+
+    // 🔍 Récupérer tous les patients suivis par un médecin
+    public function getPatientsByMedecin($id_medecin)
+    {
+        $patients = RendezVous::where('id_medecin', $id_medecin)
+            ->with('patient') // relation définie dans le modèle RendezVous
+            ->get()
+            ->pluck('patient') // on extrait uniquement l’objet patient
+            ->unique('id');   // éviter les doublons si un patient a plusieurs RDV
+
+        return response()->json($patients);
+    }
+
+    // 📊 Statistiques d’un médecin (patients + RDV + notifications)
+    public function getMedecinStats($id_medecin)
+    {
+        // 🔹 Nombre de patients uniques suivis
+        $patientsCount = RendezVous::where('id_medecin', $id_medecin)
+            ->distinct('id_patient')
+            ->count('id_patient');
+
+        // 🔹 Nombre total de rendez-vous
+        $rdvCount = RendezVous::where('id_medecin', $id_medecin)->count();
+
+        // 🔹 Nombre de notifications destinées à ce médecin
+        // ⚠️ Ici la table notifications contient bien `id_user`
+        $notificationsCount = Notification::where('id_user', $id_medecin)->count();
+
+        return response()->json([
+            'patients' => $patientsCount,
+            'rendezvous' => $rdvCount,
+            'notifications' => $notificationsCount
+        ]);
     }
 }

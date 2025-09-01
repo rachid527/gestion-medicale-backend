@@ -6,20 +6,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
+    // Nom de la table (optionnel car Laravel devine "notifications")
+    protected $table = 'notifications';
+
+    protected $primaryKey = 'id_notification'; // clé primaire
 
     protected $fillable = [
-        'id_utilisateur',
+        'id_user',
         'id_rdv',
         'type_notification',
         'contenu',
         'lu'
     ];
 
-    public function utilisateur()
+    // ✅ Relation vers l’utilisateur (User)
+    public function user()
     {
-        return $this->belongsTo(Utilisateur::class, 'id_utilisateur');
+        return $this->belongsTo(User::class, 'id_user');
     }
 
+    // ✅ Relation vers le rendez-vous
     public function rendezVous()
     {
         return $this->belongsTo(RendezVous::class, 'id_rdv');

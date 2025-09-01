@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable  implements JWTSubject
+class User extends Authenticatable implements JWTSubject
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -28,7 +26,8 @@ class User extends Authenticatable  implements JWTSubject
         'sexe',
         'date_naissance',
         'role',
-        'statut'
+        'statut',
+        'id_specialite',   // ✅ Ajout pour pouvoir assigner une spécialité à un médecin
     ];
 
     public static array $rules = [
@@ -73,30 +72,35 @@ class User extends Authenticatable  implements JWTSubject
         return [];
     }
 
-// Relations Eloquent
+    // ================= Relations Eloquent =================
 
-    // Un patient peut avoir plusieurs rendez-vous
+    // 🔹 Relation avec la spécialité (seulement pour les médecins)
+    public function specialite()
+    {
+        return $this->belongsTo(Specialite::class, 'id_specialite');
+    }
+
+    // 🔹 Un patient peut avoir plusieurs rendez-vous
     public function rendezVousPatient()
     {
         return $this->hasMany(RendezVous::class, 'id_patient');
     }
 
-    // Un médecin peut avoir plusieurs rendez-vous
+    // 🔹 Un médecin peut avoir plusieurs rendez-vous
     public function rendezVousMedecin()
     {
         return $this->hasMany(RendezVous::class, 'id_medecin');
     }
 
-    // Un patient a un seul dossier médical
+    // 🔹 Un patient a un seul dossier médical
     public function dossierMedical()
     {
         return $this->hasOne(DossierMedical::class, 'id_patient');
     }
 
-    // Notifications reçues
+    // 🔹 Notifications reçues
     public function notifications()
     {
         return $this->hasMany(Notification::class, 'id_utilisateur');
     }
-
 }
